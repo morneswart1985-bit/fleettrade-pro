@@ -1,0 +1,1323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FleetTrade Pro — Ex-Fleet Cars & Vans (Mock)</title>
+  <meta name="description" content="A modern mock motor-trade marketplace for ex-fleet vehicles: search, filters, watchlist, quick enquiry, and dealer-first UX." />
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a30;
+      --card:#0f203c;
+      --card2:#0c1a33;
+      --text:#eaf2ff;
+      --muted:#a9b8d6;
+      --muted2:#7f93bb;
+      --line:rgba(255,255,255,.10);
+      --shadow: rgba(0,0,0,.35);
+
+      --brand:#5ff2d6;
+      --brand2:#7aa7ff;
+      --good:#5ff2a2;
+      --warn:#ffd36b;
+      --bad:#ff6b8b;
+
+      --radius:18px;
+      --radius2:26px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(1000px 700px at 15% 10%, rgba(95,242,214,.18), transparent 55%),
+        radial-gradient(900px 600px at 85% 0%, rgba(122,167,255,.16), transparent 55%),
+        linear-gradient(180deg, #070b14 0%, #0b1220 30%, #0b1220 100%);
+    }
+    a{ color:inherit; text-decoration:none; }
+    button, input, select{ font:inherit; }
+    .container{ width:min(1200px, calc(100% - 40px)); margin:0 auto; }
+
+    /* Topbar */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      background: rgba(7,11,20,.65);
+      backdrop-filter: blur(12px);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar-inner{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 0;
+      gap:14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:800; letter-spacing:.2px;
+    }
+    .logo{
+      width:38px; height:38px; border-radius:14px;
+      background:
+        radial-gradient(22px 22px at 30% 30%, rgba(255,255,255,.55), transparent 60%),
+        linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+      box-shadow: 0 10px 28px rgba(95,242,214,.18);
+      position:relative;
+    }
+    .logo:after{
+      content:""; position:absolute; inset:10px;
+      border-radius:11px;
+      border:1px solid rgba(255,255,255,.22);
+    }
+    .nav{
+      display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .nav a{ padding:8px 10px; border-radius:12px; }
+    .nav a:hover{ background: rgba(255,255,255,.06); color:var(--text); }
+    .actions{
+      display:flex; align-items:center; gap:10px;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      transition: .15s ease;
+      display:inline-flex; align-items:center; gap:8px;
+      white-space:nowrap;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.07); }
+    .btn.primary{
+      border:none;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+      color:#07101b;
+      font-weight:800;
+      box-shadow: 0 14px 34px rgba(95,242,214,.18);
+    }
+    .pill{
+      padding:6px 10px; border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .dot{ width:7px; height:7px; border-radius:50%; background: var(--good); display:inline-block; }
+
+    /* Hero */
+    .hero{
+      padding:34px 0 18px;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    @media (max-width: 980px){
+      .hero-grid{ grid-template-columns:1fr; }
+    }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      box-shadow: 0 18px 60px var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .panel-inner{ padding:22px; }
+    .h1{
+      font-size: clamp(28px, 3vw, 44px);
+      line-height:1.05;
+      margin:0 0 12px;
+      letter-spacing:-.4px;
+    }
+    .sub{
+      margin:0 0 16px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width: 68ch;
+    }
+    .hero-badges{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin: 12px 0 18px;
+    }
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+      margin-top:14px;
+    }
+    @media (max-width: 560px){
+      .kpis{ grid-template-columns:1fr; }
+    }
+    .kpi{
+      background: rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius: 18px;
+      padding:12px;
+    }
+    .kpi .big{ font-weight:900; font-size:18px; }
+    .kpi .small{ color:var(--muted2); font-size:12px; margin-top:4px; }
+
+    /* Search bar */
+    .searchwrap{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 1.2fr .6fr .6fr .6fr .6fr;
+      gap:10px;
+      align-items:stretch;
+    }
+    @media (max-width: 980px){
+      .searchwrap{ grid-template-columns:1fr 1fr; }
+      .searchwrap .span2{ grid-column:1 / -1; }
+    }
+    .field{
+      background: rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding:10px 12px;
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .label{ font-size:12px; color:var(--muted2); }
+    .control{
+      display:flex; gap:10px; align-items:center;
+    }
+    .control input, .control select{
+      width:100%;
+      border:none;
+      outline:none;
+      background: transparent;
+      color:var(--text);
+      padding:2px 0;
+      font-size:14px;
+    }
+    .control select option{ color:#0b1220; }
+    .range{
+      display:flex; gap:10px; align-items:center;
+    }
+    .range input[type="range"]{ width:100%; }
+    .range .val{
+      min-width:70px;
+      text-align:right;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .search-actions{
+      display:flex; gap:10px; align-items:center; justify-content:flex-end;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+
+    /* Right panel */
+    .rightbox .panel-inner{ padding:20px; }
+    .section-title{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .section-title h3{ margin:0; font-size:16px; letter-spacing:.2px; }
+    .section-title span{ color:var(--muted2); font-size:12px; }
+    .steps{
+      display:grid; gap:10px;
+    }
+    .step{
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.03);
+      display:flex; gap:12px; align-items:flex-start;
+    }
+    .num{
+      width:28px; height:28px; border-radius:11px;
+      display:grid; place-items:center;
+      background: rgba(95,242,214,.12);
+      border:1px solid rgba(95,242,214,.25);
+      color: var(--brand);
+      font-weight:900;
+      flex:0 0 auto;
+    }
+    .step p{ margin:0; color:var(--muted); font-size:13px; line-height:1.45; }
+    .step b{ color:var(--text); }
+
+    /* Main content */
+    .main{
+      padding: 10px 0 42px;
+    }
+    .toolbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+      margin: 10px 0 12px;
+      flex-wrap:wrap;
+    }
+    .toolbar-left{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; }
+    .chip{
+      padding:8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color:var(--muted);
+      cursor:pointer;
+      font-size:13px;
+    }
+    .chip.active{
+      background: rgba(95,242,214,.12);
+      border-color: rgba(95,242,214,.35);
+      color: var(--text);
+    }
+    .toolbar-right{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+
+    /* Cards grid */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 980px){ .grid{ grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px){ .grid{ grid-template-columns:1fr; } }
+
+    .card{
+      border-radius: var(--radius);
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      overflow:hidden;
+      box-shadow: 0 18px 55px rgba(0,0,0,.22);
+      display:flex; flex-direction:column;
+      min-height: 330px;
+    }
+    .thumb{
+      height:150px;
+      background:
+        radial-gradient(400px 120px at 20% 10%, rgba(95,242,214,.18), transparent 60%),
+        radial-gradient(300px 140px at 80% 0%, rgba(122,167,255,.18), transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
+      position:relative;
+    }
+    .tagrow{
+      position:absolute; top:12px; left:12px; right:12px;
+      display:flex; justify-content:space-between; gap:8px;
+    }
+    .tag{
+      font-size:12px;
+      padding:7px 10px;
+      border-radius: 999px;
+      background: rgba(7,11,20,.55);
+      border:1px solid rgba(255,255,255,.16);
+      color:var(--text);
+      backdrop-filter: blur(10px);
+      display:inline-flex; gap:7px; align-items:center;
+    }
+    .tag .dot{ width:8px; height:8px; }
+    .heart{
+      width:36px; height:36px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(7,11,20,.55);
+      backdrop-filter: blur(10px);
+      cursor:pointer;
+      display:grid; place-items:center;
+      color: rgba(255,255,255,.85);
+      transition: .15s ease;
+    }
+    .heart:hover{ transform: translateY(-1px); }
+    .heart.active{
+      background: rgba(255,107,139,.16);
+      border-color: rgba(255,107,139,.35);
+      color: var(--bad);
+    }
+    .card-body{ padding:14px 14px 12px; display:flex; flex-direction:column; gap:10px; flex:1; }
+    .title{
+      font-weight:900;
+      letter-spacing:.2px;
+      display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
+    }
+    .title .name{ font-size:15px; line-height:1.2; }
+    .title .price{ font-size:15px; color:var(--brand); white-space:nowrap; }
+    .meta{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:8px;
+    }
+    .meta .m{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding:10px;
+    }
+    .meta .m .k{ font-size:12px; color:var(--muted2); }
+    .meta .m .v{ margin-top:4px; font-weight:800; font-size:13px; }
+
+    .badges{
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .badge{
+      font-size:12px;
+      padding:7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:var(--muted);
+    }
+    .badge.good{ color: #d9ffe9; border-color: rgba(95,242,162,.35); background: rgba(95,242,162,.10); }
+    .badge.warn{ color: #fff6d6; border-color: rgba(255,211,107,.35); background: rgba(255,211,107,.10); }
+
+    .card-footer{
+      padding:12px 14px 14px;
+      border-top:1px solid var(--line);
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .btn.small{ padding:9px 10px; border-radius: 14px; font-size:13px; }
+    .btn.ghost{ background: rgba(255,255,255,.03); }
+    .btn.good{
+      border:none;
+      background: linear-gradient(135deg, rgba(95,242,214,.95), rgba(122,167,255,.95));
+      color:#07101b;
+      font-weight:900;
+    }
+
+    /* Footer */
+    .foot{
+      padding: 26px 0 40px;
+      color: var(--muted);
+      border-top:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+    }
+    .foot-grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr .8fr;
+      gap:16px;
+    }
+    @media (max-width: 980px){ .foot-grid{ grid-template-columns:1fr; } }
+    .foot h4{ margin:0 0 10px; color:var(--text); }
+    .foot a{ color:var(--muted); display:block; padding:6px 0; }
+    .foot a:hover{ color:var(--text); }
+
+    /* Modal */
+    .modal-backdrop{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center; justify-content:center;
+      padding:20px;
+      z-index:100;
+    }
+    .modal-backdrop.show{ display:flex; }
+    .modal{
+      width:min(720px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 22px 90px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .modal-head{
+      padding:14px 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      border-bottom:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+    }
+    .modal-head b{ font-size:14px; }
+    .modal-body{ padding:16px; color:var(--muted); }
+    .modal-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    @media (max-width: 720px){ .modal-grid{ grid-template-columns:1fr; } }
+    .modal .field{ background: rgba(255,255,255,.03); }
+    .modal-foot{
+      padding:14px 16px;
+      border-top:1px solid var(--line);
+      display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;
+    }
+
+    /* Tiny icons (pure CSS text) */
+    .ico{ font-weight:900; opacity:.9; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+  </style>
+</head>
+
+<body>
+  <header class="topbar" role="banner">
+    <div class="container topbar-inner">
+      <a class="brand" href="#" aria-label="FleetTrade Pro Home">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          FleetTrade <span style="color:var(--brand);">Pro</span><div style="font-size:12px;color:var(--muted2);font-weight:600;">Motor trade marketplace (mock)</div>
+        </div>
+      </a>
+
+      <nav class="nav" aria-label="Primary">
+        <a href="#inventory">Inventory</a>
+        <a href="#how">How it works</a>
+        <a href="#why">Why dealers choose us</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <div class="actions">
+        <span class="pill" title="System status"><span class="dot"></span> Live stock updates</span>
+        <button class="btn" id="btnWatchlist" type="button" aria-label="Open watchlist">
+          <span class="ico">♥</span> Watchlist <span class="mono" id="watchCount">0</span>
+        </button>
+        <button class="btn primary" id="btnDealer" type="button">
+          Dealer login <span class="ico">→</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero" aria-label="Hero">
+    <div class="container hero-grid">
+      <div class="panel">
+        <div class="panel-inner">
+          <h1 class="h1">Buy ex-fleet stock like a pro.<br/>Fast filters, clean data, real trade UX.</h1>
+          <p class="sub">
+            This is a <b>mock marketplace</b> designed to outperform “basic listings” sites:
+            sharper search, better trust signals, dealer-first actions, and a modern look that actually converts.
+          </p>
+
+          <div class="hero-badges" id="why">
+            <span class="pill"><span class="ico">✓</span> VAT qualifying stock</span>
+            <span class="pill"><span class="ico">✓</span> Inspection notes & grading</span>
+            <span class="pill"><span class="ico">✓</span> Watchlist & alerts</span>
+            <span class="pill"><span class="ico">✓</span> 1-click enquiry</span>
+          </div>
+
+          <div class="searchwrap" aria-label="Search & Filters">
+            <div class="field span2">
+              <div class="label">Quick search</div>
+              <div class="control">
+                <span class="ico" aria-hidden="true">⌕</span>
+                <input id="q" type="search" placeholder="Try: 'Toyota van', 'EV', 'Dublin', 'automatic'..." autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label">Vehicle type</div>
+              <div class="control">
+                <select id="type">
+                  <option value="all">All</option>
+                  <option value="Car">Car</option>
+                  <option value="Van">Van</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label">Fuel</div>
+              <div class="control">
+                <select id="fuel">
+                  <option value="all">All</option>
+                  <option value="Petrol">Petrol</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="EV">EV</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label">Location</div>
+              <div class="control">
+                <select id="loc">
+                  <option value="all">All</option>
+                  <option value="Dublin">Dublin</option>
+                  <option value="Cork">Cork</option>
+                  <option value="Galway">Galway</option>
+                  <option value="Limerick">Limerick</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label">Sort</div>
+              <div class="control">
+                <select id="sort">
+                  <option value="newest">Newest first</option>
+                  <option value="priceAsc">Price (low → high)</option>
+                  <option value="priceDesc">Price (high → low)</option>
+                  <option value="kmsAsc">Kms (low → high)</option>
+                  <option value="gradeDesc">Grade (best first)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="searchwrap" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr; margin-top:10px;">
+            <div class="field">
+              <div class="label">Max price</div>
+              <div class="range">
+                <input id="maxPrice" type="range" min="6000" max="45000" step="500" value="30000" />
+                <div class="val mono" id="maxPriceVal">€30,000</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label">Max kms</div>
+              <div class="range">
+                <input id="maxKms" type="range" min="5000" max="180000" step="5000" value="90000" />
+                <div class="val mono" id="maxKmsVal">90,000</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label">Min year</div>
+              <div class="control">
+                <select id="minYear">
+                  <option value="2018">2018+</option>
+                  <option value="2019">2019+</option>
+                  <option value="2020">2020+</option>
+                  <option value="2021">2021+</option>
+                  <option value="2022" selected>2022+</option>
+                  <option value="2023">2023+</option>
+                  <option value="2024">2024+</option>
+                  <option value="2025">2025+</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label">Trade only</div>
+              <div class="control" style="justify-content:space-between;">
+                <span class="pill" style="border-radius:14px; padding:8px 10px;"><span class="ico">🛡</span> Verified dealers</span>
+                <label class="pill" style="cursor:pointer;">
+                  <input id="vatOnly" type="checkbox" checked style="accent-color: var(--brand);" />
+                  VAT only
+                </label>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label">Actions</div>
+              <div class="control" style="gap:10px;">
+                <button class="btn primary" id="apply" type="button">Apply</button>
+                <button class="btn" id="reset" type="button">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpis" aria-label="Marketplace highlights">
+            <div class="kpi">
+              <div class="big">2–4 mins</div>
+              <div class="small">to shortlist stock (dealer UX)</div>
+            </div>
+            <div class="kpi">
+              <div class="big">Grade A–C</div>
+              <div class="small">inspection & condition signal</div>
+            </div>
+            <div class="kpi">
+              <div class="big">1-click</div>
+              <div class="small">enquiry + transport quote</div>
+            </div>
+          </div>
+
+          <div class="search-actions">
+            <span class="pill"><span class="ico">⚡</span> Smart filters</span>
+            <span class="pill"><span class="ico">📈</span> Trade pricing signals</span>
+            <span class="pill"><span class="ico">🔔</span> Alert-ready watchlist</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel rightbox" id="how">
+        <div class="panel-inner">
+          <div class="section-title">
+            <h3>How it works</h3>
+            <span>dealer-first flow</span>
+          </div>
+
+          <div class="steps">
+            <div class="step">
+              <div class="num">1</div>
+              <div>
+                <p><b>Search with real trade filters</b> (VAT, grade, kms, location, fuel, gearbox).</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">2</div>
+              <div>
+                <p><b>Shortlist to watchlist</b> and auto-create alerts for price drops & new arrivals.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">3</div>
+              <div>
+                <p><b>One-click enquiry</b> for invoice, inspection notes, and transport options.</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <div class="section-title">
+              <h3>Why this “kicks ass”</h3>
+              <span>what basic sites miss</span>
+            </div>
+            <div class="steps">
+              <div class="step">
+                <div class="num" style="border-color:rgba(122,167,255,.35);background:rgba(122,167,255,.12);color:var(--brand2);">★</div>
+                <div>
+                  <p><b>Conversion design</b>: clear CTAs, trust signals, and dealer-only UX—no clutter.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="num" style="border-color:rgba(255,211,107,.35);background:rgba(255,211,107,.12);color:var(--warn);">↯</div>
+                <div>
+                  <p><b>Speed</b>: modern layout + lightweight code means it feels instant.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="num" style="border-color:rgba(95,242,162,.35);background:rgba(95,242,162,.12);color:var(--good);">✓</div>
+                <div>
+                  <p><b>Better trust</b>: grade + notes + VAT + clear location—buyers decide faster.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn primary" type="button" onclick="scrollToInventory()">Browse inventory</button>
+            <button class="btn" type="button" onclick="openModal('dealer')">Request dealer access</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="main" id="inventory">
+    <div class="container">
+      <div class="toolbar" role="region" aria-label="Inventory toolbar">
+        <div class="toolbar-left">
+          <b style="color:var(--text);">Inventory</b>
+          <span class="pill"><span class="ico">🚚</span> Ex-fleet arrivals daily</span>
+          <span class="pill"><span class="ico">🧾</span> VAT qualifying</span>
+          <span class="pill"><span class="ico">🔍</span> <span id="resultCount">0</span> results</span>
+        </div>
+
+        <div class="toolbar-right">
+          <div class="chips" aria-label="Quick chips">
+            <button class="chip" data-chip="new">New in</button>
+            <button class="chip" data-chip="ev">EV</button>
+            <button class="chip" data-chip="van">Vans</button>
+            <button class="chip" data-chip="auto">Automatic</button>
+            <button class="chip" data-chip="gradeA">Grade A</button>
+          </div>
+          <button class="btn" type="button" onclick="openModal('alerts')"><span class="ico">🔔</span> Create alert</button>
+        </div>
+      </div>
+
+      <div class="grid" id="grid" aria-label="Vehicle results"></div>
+    </div>
+  </main>
+
+  <section class="foot" id="faq" aria-label="Footer">
+    <div class="container foot-grid">
+      <div>
+        <div class="brand" style="margin-bottom:10px;">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            FleetTrade <span style="color:var(--brand);">Pro</span>
+            <div style="font-size:12px;color:var(--muted2);font-weight:600;">Mock demo UI</div>
+          </div>
+        </div>
+        <div style="color:var(--muted); line-height:1.6;">
+          Built as a <b>conversion-first</b> motor-trade marketplace concept:
+          clean filters, fast shortlisting, and trust-forward listings.
+        </div>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+          <span class="pill"><span class="ico">♿</span> Accessible UI</span>
+          <span class="pill"><span class="ico">⚙</span> Lightweight JS</span>
+          <span class="pill"><span class="ico">📱</span> Mobile-first</span>
+        </div>
+      </div>
+
+      <div>
+        <h4>Dealer tools</h4>
+        <a href="#" onclick="openModal('alerts');return false;">Price drop alerts</a>
+        <a href="#" onclick="openModal('dealer');return false;">Verified dealer onboarding</a>
+        <a href="#" onclick="openModal('transport');return false;">Transport quote</a>
+        <a href="#" onclick="openModal('report');return false;">Condition report request</a>
+      </div>
+
+      <div>
+        <h4>FAQ</h4>
+        <a href="#" onclick="openModal('faqVAT');return false;">Are vehicles VAT qualifying?</a>
+        <a href="#" onclick="openModal('faqGrade');return false;">What’s Grade A/B/C?</a>
+        <a href="#" onclick="openModal('faqReserve');return false;">Can I reserve stock?</a>
+        <a href="#" onclick="openModal('faqPayment');return false;">Payment & invoicing</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL -->
+  <div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <b id="modalTitle">Modal</b>
+        <button class="btn small" type="button" onclick="closeModal()" aria-label="Close modal">Close ✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot" id="modalFoot"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Mock inventory dataset (replace with real API later) =====
+    const vehicles = [
+      { id:"FT-1021", type:"Van", make:"Toyota", model:"Proace City", year:2024, kms:28500, price:19950, fuel:"Diesel", gearbox:"Manual", location:"Dublin", vat:true, grade:"A", arrivedDays:3, notes:"Ex-fleet. Clean cabin. Minor bumper mark noted.", features:["VAT Qualifying","1 Owner","Service History"] },
+      { id:"FT-1044", type:"Car", make:"Hyundai", model:"Kona EV", year:2023, kms:41200, price:21450, fuel:"EV", gearbox:"Auto", location:"Cork", vat:true, grade:"A", arrivedDays:8, notes:"Battery health report available. Fresh tyres.", features:["VAT Qualifying","Battery Report","Fast Charge"] },
+      { id:"FT-1077", type:"Car", make:"Renault", model:"Clio", year:2022, kms:62000, price:12950, fuel:"Petrol", gearbox:"Manual", location:"Galway", vat:true, grade:"B", arrivedDays:2, notes:"Ex-rental. Small scuffs. Drives well.", features:["VAT Qualifying","Keyless","Bluetooth"] },
+      { id:"FT-1102", type:"Van", make:"Ford", model:"Transit Custom", year:2023, kms:98000, price:21950, fuel:"Diesel", gearbox:"Manual", location:"Limerick", vat:true, grade:"B", arrivedDays:15, notes:"Trade-friendly pricing. Light panel scratches.", features:["VAT Qualifying","2 Keys","Bulkhead"] },
+      { id:"FT-1115", type:"Car", make:"Toyota", model:"Corolla Hybrid", year:2024, kms:19000, price:25950, fuel:"Hybrid", gearbox:"Auto", location:"Dublin", vat:true, grade:"A", arrivedDays:1, notes:"Very clean. Full dealer service printout.", features:["VAT Qualifying","Hybrid","Adaptive Cruise"] },
+      { id:"FT-1120", type:"Car", make:"Opel", model:"Corsa", year:2022, kms:54000, price:11850, fuel:"Petrol", gearbox:"Manual", location:"Cork", vat:true, grade:"B", arrivedDays:22, notes:"Good retail prep candidate.", features:["VAT Qualifying","Apple CarPlay","Low tax band"] },
+      { id:"FT-1138", type:"Van", make:"Citroën", model:"Berlingo", year:2022, kms:76000, price:14950, fuel:"Diesel", gearbox:"Manual", location:"Dublin", vat:true, grade:"C", arrivedDays:6, notes:"Grade C due to cosmetic wear. Mechanically OK.", features:["VAT Qualifying","3 Seats","Ply lined"] },
+      { id:"FT-1166", type:"Car", make:"Volkswagen", model:"ID.3", year:2023, kms:35000, price:22750, fuel:"EV", gearbox:"Auto", location:"Galway", vat:true, grade:"A", arrivedDays:12, notes:"Battery check available. Great condition.", features:["VAT Qualifying","Battery Report","Reverse camera"] },
+      { id:"FT-1189", type:"Van", make:"Renault", model:"Kangoo", year:2024, kms:21000, price:17950, fuel:"Diesel", gearbox:"Manual", location:"Cork", vat:true, grade:"A", arrivedDays:4, notes:"Straight panels. Clean load area.", features:["VAT Qualifying","Cruise Control","Lane Assist"] },
+      { id:"FT-1204", type:"Car", make:"Skoda", model:"Octavia", year:2022, kms:88000, price:16450, fuel:"Diesel", gearbox:"Auto", location:"Dublin", vat:true, grade:"B", arrivedDays:9, notes:"Strong spec. Great motorway car.", features:["VAT Qualifying","Auto","Heated seats"] },
+      { id:"FT-1212", type:"Car", make:"Peugeot", model:"208", year:2023, kms:26000, price:14950, fuel:"Petrol", gearbox:"Manual", location:"Limerick", vat:true, grade:"A", arrivedDays:5, notes:"Near-new feel. Retail-ready.", features:["VAT Qualifying","1 Owner","LED lights"] },
+      { id:"FT-1227", type:"Van", make:"Volkswagen", model:"Caddy", year:2023, kms:65000, price:18950, fuel:"Diesel", gearbox:"Manual", location:"Galway", vat:true, grade:"B", arrivedDays:18, notes:"Popular van. Clean history.", features:["VAT Qualifying","Ply lined","Roof bars"] },
+    ];
+
+    // ===== UI State =====
+    const state = {
+      q: "",
+      type: "all",
+      fuel: "all",
+      loc: "all",
+      sort: "newest",
+      maxPrice: 30000,
+      maxKms: 90000,
+      minYear: 2022,
+      vatOnly: true,
+      chip: null,
+      watchlist: new Set()
+    };
+
+    // ===== Helpers =====
+    const € = (n) => new Intl.NumberFormat("en-IE",{ style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n);
+    const fmtK = (n) => new Intl.NumberFormat("en-IE").format(n);
+
+    function gradeScore(g){
+      return ({A:3,B:2,C:1}[g] || 0);
+    }
+
+    function matchesChip(v){
+      switch(state.chip){
+        case "new": return v.arrivedDays <= 7;
+        case "ev": return v.fuel === "EV";
+        case "van": return v.type === "Van";
+        case "auto": return v.gearbox === "Auto";
+        case "gradeA": return v.grade === "A";
+        default: return true;
+      }
+    }
+
+    function filterVehicles(){
+      const q = state.q.trim().toLowerCase();
+      return vehicles
+        .filter(v => !state.vatOnly || v.vat)
+        .filter(v => state.type === "all" || v.type === state.type)
+        .filter(v => state.fuel === "all" || v.fuel === state.fuel)
+        .filter(v => state.loc === "all" || v.location === state.loc)
+        .filter(v => v.price <= state.maxPrice)
+        .filter(v => v.kms <= state.maxKms)
+        .filter(v => v.year >= Number(state.minYear))
+        .filter(v => matchesChip(v))
+        .filter(v => {
+          if(!q) return true;
+          const hay = `${v.make} ${v.model} ${v.type} ${v.fuel} ${v.gearbox} ${v.location} ${v.id} ${v.grade} ${v.features.join(" ")} ${v.notes}`.toLowerCase();
+          return hay.includes(q);
+        })
+        .sort((a,b)=>{
+          switch(state.sort){
+            case "priceAsc": return a.price - b.price;
+            case "priceDesc": return b.price - a.price;
+            case "kmsAsc": return a.kms - b.kms;
+            case "gradeDesc": return gradeScore(b.grade) - gradeScore(a.grade);
+            case "newest":
+            default: return a.arrivedDays - b.arrivedDays; // smaller days = newer
+          }
+        });
+    }
+
+    function gradeLabel(g){
+      if(g==="A") return {text:"Grade A (Retail-ready)", cls:"good"};
+      if(g==="B") return {text:"Grade B (Minor cosmetic)", cls:"warn"};
+      return {text:"Grade C (Trade tidy)", cls:""};
+    }
+
+    function stockTag(v){
+      if(v.arrivedDays <= 3) return {text:"Just arrived", dot:"var(--good)"};
+      if(v.arrivedDays <= 10) return {text:"New in", dot:"var(--brand)"};
+      return {text:"In stock", dot:"rgba(255,255,255,.7)"};
+    }
+
+    function render(){
+      const list = filterVehicles();
+      document.getElementById("resultCount").textContent = list.length;
+
+      const grid = document.getElementById("grid");
+      grid.innerHTML = list.map(v => {
+        const g = gradeLabel(v.grade);
+        const tag = stockTag(v);
+        const isSaved = state.watchlist.has(v.id);
+
+        return `
+          <article class="card" aria-label="${v.year} ${v.make} ${v.model}">
+            <div class="thumb" role="img" aria-label="Vehicle image placeholder">
+              <div class="tagrow">
+                <div class="tag"><span class="dot" style="background:${tag.dot}"></span> ${tag.text}</div>
+                <button class="heart ${isSaved ? "active":""}" type="button" aria-label="Toggle watchlist for ${v.id}" onclick="toggleWatch('${v.id}')">
+                  ♥
+                </button>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="title">
+                <div>
+                  <div class="name">${v.year} ${v.make} ${v.model}</div>
+                  <div style="margin-top:6px; color:var(--muted2); font-size:12px;">
+                    <span class="mono">${v.id}</span> • ${v.location} • ${v.fuel} • ${v.gearbox}
+                  </div>
+                </div>
+                <div class="price">${€(v.price)}</div>
+              </div>
+
+              <div class="meta">
+                <div class="m">
+                  <div class="k">Kms</div>
+                  <div class="v">${fmtK(v.kms)}</div>
+                </div>
+                <div class="m">
+                  <div class="k">Type</div>
+                  <div class="v">${v.type}</div>
+                </div>
+                <div class="m">
+                  <div class="k">VAT</div>
+                  <div class="v">${v.vat ? "Qualifying" : "No"}</div>
+                </div>
+              </div>
+
+              <div class="badges">
+                <span class="badge ${g.cls}">${g.text}</span>
+                ${v.features.slice(0,2).map(f=>`<span class="badge">${f}</span>`).join("")}
+              </div>
+
+              <div style="color:var(--muted); font-size:13px; line-height:1.45;">
+                ${v.notes}
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <button class="btn small ghost" type="button" onclick="openEnquiry('${v.id}')"><span class="ico">✉</span> Enquire</button>
+              <button class="btn small" type="button" onclick="openModal('transport','${v.id}')"><span class="ico">🚚</span> Transport</button>
+              <button class="btn small good" type="button" onclick="openModal('report','${v.id}')"><span class="ico">🧾</span> Get invoice</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      document.getElementById("watchCount").textContent = state.watchlist.size;
+    }
+
+    // ===== Watchlist =====
+    function toggleWatch(id){
+      if(state.watchlist.has(id)) state.watchlist.delete(id);
+      else state.watchlist.add(id);
+      render();
+    }
+
+    // ===== Chips =====
+    document.querySelectorAll(".chip").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const chip = btn.dataset.chip;
+        state.chip = (state.chip === chip) ? null : chip;
+        document.querySelectorAll(".chip").forEach(b=>b.classList.toggle("active", b.dataset.chip === state.chip));
+        render();
+      });
+    });
+
+    // ===== Controls Wiring =====
+    const qEl = document.getElementById("q");
+    const typeEl = document.getElementById("type");
+    const fuelEl = document.getElementById("fuel");
+    const locEl = document.getElementById("loc");
+    const sortEl = document.getElementById("sort");
+    const maxPriceEl = document.getElementById("maxPrice");
+    const maxKmsEl = document.getElementById("maxKms");
+    const minYearEl = document.getElementById("minYear");
+    const vatOnlyEl = document.getElementById("vatOnly");
+
+    const maxPriceVal = document.getElementById("maxPriceVal");
+    const maxKmsVal = document.getElementById("maxKmsVal");
+
+    function syncVals(){
+      maxPriceVal.textContent = €(Number(maxPriceEl.value));
+      maxKmsVal.textContent = fmtK(Number(maxKmsEl.value));
+    }
+    syncVals();
+
+    qEl.addEventListener("input", ()=>{ state.q = qEl.value; render(); });
+    maxPriceEl.addEventListener("input", ()=>{ state.maxPrice = Number(maxPriceEl.value); syncVals(); });
+    maxKmsEl.addEventListener("input", ()=>{ state.maxKms = Number(maxKmsEl.value); syncVals(); });
+
+    document.getElementById("apply").addEventListener("click", ()=>{
+      state.type = typeEl.value;
+      state.fuel = fuelEl.value;
+      state.loc = locEl.value;
+      state.sort = sortEl.value;
+      state.minYear = Number(minYearEl.value);
+      state.vatOnly = vatOnlyEl.checked;
+      render();
+      scrollToInventory();
+    });
+
+    document.getElementById("reset").addEventListener("click", ()=>{
+      qEl.value = "";
+      typeEl.value = "all";
+      fuelEl.value = "all";
+      locEl.value = "all";
+      sortEl.value = "newest";
+      maxPriceEl.value = 30000;
+      maxKmsEl.value = 90000;
+      minYearEl.value = 2022;
+      vatOnlyEl.checked = true;
+
+      state.q=""; state.type="all"; state.fuel="all"; state.loc="all"; state.sort="newest";
+      state.maxPrice=30000; state.maxKms=90000; state.minYear=2022; state.vatOnly=true;
+      state.chip=null;
+      document.querySelectorAll(".chip").forEach(b=>b.classList.remove("active"));
+      syncVals();
+      render();
+    });
+
+    // ===== Buttons =====
+    document.getElementById("btnDealer").addEventListener("click", ()=> openModal("dealer"));
+    document.getElementById("btnWatchlist").addEventListener("click", ()=> openModal("watchlist"));
+
+    function scrollToInventory(){
+      document.getElementById("inventory").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+
+    // ===== Modal Content =====
+    const backdrop = document.getElementById("backdrop");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+    const modalFoot = document.getElementById("modalFoot");
+
+    function openEnquiry(id){
+      openModal("enquiry", id);
+    }
+
+    function openModal(kind, vehicleId=null){
+      const v = vehicleId ? vehicles.find(x=>x.id===vehicleId) : null;
+
+      const templates = {
+        dealer: {
+          title: "Dealer login / onboarding (mock)",
+          body: `
+            <div style="color:var(--muted); line-height:1.6;">
+              <b>Verified dealer-only</b> access keeps the marketplace clean and serious.
+              In a real build, this would include company verification, VAT checks, and user roles.
+            </div>
+            <div class="modal-grid">
+              <div class="field">
+                <div class="label">Business name</div>
+                <div class="control"><input placeholder="e.g., Swart Motors Ltd" /></div>
+              </div>
+              <div class="field">
+                <div class="label">Dealer email</div>
+                <div class="control"><input type="email" placeholder="name@dealer.ie" /></div>
+              </div>
+              <div class="field">
+                <div class="label">VAT number</div>
+                <div class="control"><input placeholder="IE1234567X" /></div>
+              </div>
+              <div class="field">
+                <div class="label">Preferred stock</div>
+                <div class="control">
+                  <select>
+                    <option>Cars & Vans</option>
+                    <option>Cars only</option>
+                    <option>Vans only</option>
+                    <option>EV focused</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          `,
+          foot: `
+            <button class="btn" type="button" onclick="closeModal()">Cancel</button>
+            <button class="btn primary" type="button" onclick="toast('Request sent (mock).')">Request access</button>
+          `
+        },
+
+        enquiry: {
+          title: v ? `Enquiry — ${v.year} ${v.make} ${v.model} (${v.id})` : "Enquiry",
+          body: `
+            <div style="color:var(--muted); line-height:1.6;">
+              This is the conversion bit most basic sites mess up. Keep it short, dealer-focused, and easy.
+            </div>
+            <div class="modal-grid">
+              <div class="field">
+                <div class="label">Your name</div>
+                <div class="control"><input placeholder="Full name" /></div>
+              </div>
+              <div class="field">
+                <div class="label">Dealer email</div>
+                <div class="control"><input type="email" placeholder="name@dealer.ie" /></div>
+              </div>
+              <div class="field">
+                <div class="label">Phone</div>
+                <div class="control"><input placeholder="+353 ..." /></div>
+              </div>
+              <div class="field">
+                <div class="label">Message</div>
+                <div class="control"><input placeholder="Send invoice, condition report, delivery options..." /></div>
+              </div>
+            </div>
+          `,
+          foot: `
+            <button class="btn" type="button" onclick="closeModal()">Close</button>
+            <button class="btn primary" type="button" onclick="toast('Enquiry submitted (mock).')">Send enquiry</button>
+          `
+        },
+
+        report: {
+          title: v ? `Invoice & condition pack — ${v.id}` : "Invoice & condition pack",
+          body: `
+            <div style="line-height:1.6;">
+              <div class="pill" style="display:inline-flex;margin-bottom:10px;"><span class="ico">🧾</span> What you get</div>
+              <ul style="margin:8px 0 0 18px; color:var(--muted);">
+                <li>Trade invoice draft (VAT qualifying)</li>
+                <li>Condition notes + grade rationale</li>
+                <li>Service history summary</li>
+                <li>Delivery options estimate</li>
+              </ul>
+              ${v ? `<div style="margin-top:12px; color:var(--muted);">
+                <b style="color:var(--text);">Selected:</b> ${v.year} ${v.make} ${v.model} • ${€(v.price)} • ${fmtK(v.kms)} kms • Grade ${v.grade}
+              </div>` : ""}
+            </div>
+          `,
+          foot: `
+            <button class="btn" type="button" onclick="closeModal()">Close</button>
+            <button class="btn primary" type="button" onclick="toast('Pack requested (mock).')">Request pack</button>
+          `
+        },
+
+        transport: {
+          title: v ? `Transport quote — ${v.id}` : "Transport quote",
+          body: `
+            <div style="color:var(--muted); line-height:1.6;">
+              Dealers love this: remove friction by showing transport and timelines up front.
+            </div>
+            <div class="modal-grid">
+              <div class="field">
+                <div class="label">Delivery county</div>
+                <div class="control">
+                  <select>
+                    <option>Dublin</option><option>Cork</option><option>Galway</option><option>Limerick</option>
+                    <option>Meath</option><option>Kildare</option><option>Wexford</option><option>Donegal</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <div class="label">Preferred window</div>
+                <div class="control">
+                  <select>
+                    <option>24–48 hours</option><option>3–5 days</option><option>Next week</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            ${v ? `<div style="margin-top:12px; color:var(--muted);">
+              <b style="color:var(--text);">Vehicle:</b> ${v.year} ${v.make} ${v.model} (${v.location})
+            </div>` : ""}
+          `,
+          foot: `
+            <button class="btn" type="button" onclick="closeModal()">Close</button>
+            <button class="btn primary" type="button" onclick="toast('Quote requested (mock).')">Get quote</button>
+          `
+        },
+
+        alerts: {
+          title: "Create an alert (mock)",
+          body: `
+            <div style="color:var(--muted); line-height:1.6;">
+              Alerts + watchlist = repeat visits. Basic sites don’t do this well.
+            </div>
+            <div class="modal-grid">
+              <div class="field">
+                <div class="label">Keyword</div>
+                <div class="control"><input placeholder="e.g., 'Transit', 'EV', 'Auto'" /></div>
+              </div>
+              <div class="field">
+                <div class="label">Frequency</div>
+                <div class="control">
+                  <select><option>Instant</option><option>Daily</option><option>Weekly</option></select>
+                </div>
+              </div>
+              <div class="field">
+                <div class="label">Max price</div>
+                <div class="control"><input placeholder="e.g., 22000" /></div>
+              </div>
+              <div class="field">
+                <div class="label">Locations</div>
+                <div class="control">
+                  <select><option>All</option><option>Dublin</option><option>Cork</option><option>Galway</option><option>Limerick</option></select>
+                </div>
+              </div>
+            </div>
+          `,
+          foot: `
+            <button class="btn" type="button" onclick="closeModal()">Close</button>
+            <button class="btn primary" type="button" onclick="toast('Alert created (mock).')">Create alert</button>
+          `
+        },
+
+        watchlist: {
+          title: "Your watchlist (mock)",
+          body: `
+            <div style="color:var(--muted); line-height:1.6; margin-bottom:10px;">
+              Saved vehicles (${state.watchlist.size}). In a real product, this would support alerts, notes, and team sharing.
+            </div>
+            ${renderWatchlistHtml()}
+          `,
+          foot: `
+            <button class="btn" type="button" onclick="closeModal()">Close</button>
+            <button class="btn primary" type="button" onclick="toast('Exported (mock).')">Export shortlist</button>
+          `
+        },
+
+        faqVAT: {
+          title: "FAQ — VAT qualifying?",
+          body: `<div style="color:var(--muted); line-height:1.6;">
+            In this mock, vehicles are marked <b>VAT Qualifying</b>. In a real marketplace, this should be validated and displayed clearly on every listing,
+            plus on invoices and exports.
+          </div>`,
+          foot: `<button class="btn primary" type="button" onclick="closeModal()">Got it</button>`
+        },
+
+        faqGrade: {
+          title: "FAQ — What’s Grade A/B/C?",
+          body: `<div style="color:var(--muted); line-height:1.6;">
+            <b>Grade A</b> = retail-ready, minimal cosmetic wear.<br/>
+            <b>Grade B</b> = minor cosmetic marks, good prep candidate.<br/>
+            <b>Grade C</b> = trade tidy / heavier cosmetic wear, priced accordingly.
+            <div style="margin-top:10px;">The key: show the grade AND the reason behind it (notes + photos).</div>
+          </div>`,
+          foot: `<button class="btn primary" type="button" onclick="closeModal()">Close</button>`
+        },
+
+        faqReserve: {
+          title: "FAQ — Can I reserve stock?",
+          body: `<div style="color:var(--muted); line-height:1.6;">
+            The best marketplaces support a <b>time-limited reserve</b> (e.g., 60–120 mins) to reduce lost deals,
+            with clear dealer rules and auto-expiry.
+          </div>`,
+          foot: `<button class="btn primary" type="button" onclick="closeModal()">Close</button>`
+        },
+
+        faqPayment: {
+          title: "FAQ — Payment & invoicing",
+          body: `<div style="color:var(--muted); line-height:1.6;">
+            In a real build: show <b>payment method</b>, <b>invoice timing</b>, <b>VAT breakdown</b>, and <b>delivery terms</b>
+            right in the checkout flow. Dealers don’t want surprises.
+          </div>`,
+          foot: `<button class="btn primary" type="button" onclick="closeModal()">Close</button>`
+        }
+      };
+
+      const t = templates[kind] || { title:"Modal", body:"", foot:`<button class="btn primary" onclick="closeModal()">Close</button>` };
+
+      modalTitle.textContent = t.title;
+      modalBody.innerHTML = t.body;
+      modalFoot.innerHTML = t.foot;
+
+      backdrop.classList.add("show");
+      backdrop.addEventListener("click", onBackdropClick);
+      document.addEventListener("keydown", onEsc);
+    }
+
+    function renderWatchlistHtml(){
+      const ids = Array.from(state.watchlist);
+      if(ids.length === 0){
+        return `<div class="pill" style="display:inline-flex;"><span class="ico">♥</span> Nothing saved yet — tap ♥ on a vehicle.</div>`;
+      }
+      const items = ids.map(id => vehicles.find(v=>v.id===id)).filter(Boolean);
+      return `
+        <div style="display:grid; gap:10px;">
+          ${items.map(v => `
+            <div class="field" style="padding:12px;">
+              <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+                <div>
+                  <div style="font-weight:900; color:var(--text);">${v.year} ${v.make} ${v.model}</div>
+                  <div style="color:var(--muted2); font-size:12px; margin-top:4px;">
+                    <span class="mono">${v.id}</span> • ${v.location} • ${v.fuel} • ${fmtK(v.kms)} kms • Grade ${v.grade}
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-weight:900; color:var(--brand);">${€(v.price)}</div>
+                  <button class="btn small" type="button" onclick="toggleWatch('${v.id}'); openModal('watchlist');">Remove</button>
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function closeModal(){
+      backdrop.classList.remove("show");
+      backdrop.removeEventListener("click", onBackdropClick);
+      document.removeEventListener("keydown", onEsc);
+    }
+
+    function onBackdropClick(e){
+      if(e.target === backdrop) closeModal();
+    }
+
+    function onEsc(e){
+      if(e.key === "Escape") closeModal();
+    }
+
+    // ===== Tiny toast (simple alert replacement) =====
+    function toast(msg){
+      // lightweight, no external libs
+      const t = document.createElement("div");
+      t.className = "pill";
+      t.style.position = "fixed";
+      t.style.right = "18px";
+      t.style.bottom = "18px";
+      t.style.zIndex = "999";
+      t.style.padding = "10px 12px";
+      t.style.background = "rgba(7,11,20,.72)";
+      t.style.backdropFilter = "blur(10px)";
+      t.style.border = "1px solid rgba(255,255,255,.18)";
+      t.style.color = "var(--text)";
+      t.innerHTML = `<span class="ico">✓</span> ${msg}`;
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.style.opacity = "0"; t.style.transition = "opacity .25s ease"; }, 1600);
+      setTimeout(()=> t.remove(), 2000);
+    }
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
